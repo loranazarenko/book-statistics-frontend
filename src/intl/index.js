@@ -1,5 +1,5 @@
-import languages from 'misc/constants/languages';
-import mixMessages from 'misc/intl/messages';
+import languages from '../misc/constants/languages';
+import mixMessages from '../misc/intl/messages';
 const DEFAULT_LANG = languages.en;
 
 function getMessages(lang) {
@@ -17,5 +17,10 @@ function getMessages(lang) {
     messages,
   });
 }
+
+export const getTranslation = (key, lang = 'en') => {
+    const messages = getMessages(lang);
+    return messages[key] || key;
+};
 
 export default getMessages;

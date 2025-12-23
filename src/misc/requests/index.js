@@ -1,15 +1,18 @@
 import axios from 'axios';
 import storage, { keys } from '../storage';
+import config from "../../config";
 
-axios.interceptors.request.use((params) => {
-  const token = storage.getItem(keys.TOKEN);
-  if (token) {
-    params.headers.setAuthorization(`Bearer ${token}`);
-  }
-  return params;
-});
+const addTokenInterceptor = (axiosInstance) => {
+    axios.interceptors.request.use((params) => {
+      const token = storage.getItem(keys.TOKEN);
+      if (token) {
+        params.headers.setAuthorization(`Bearer ${token}`);
+      }
+      return params;
+    });
+};
 
-const addAxiosInterceptors = ({
+const addResponseInterceptor  = ({
   onSignOut,
 }) => {
   axios.interceptors.response.use(
@@ -24,6 +27,19 @@ const addAxiosInterceptors = ({
     }
   );
 };
+axios.defaults.baseURL = config.USERS_SERVICE;
+addTokenInterceptor(axios);
+
+export const booksAxios = axios.create({
+    baseURL: config.BOOKS_SERVICE,
+});
+addTokenInterceptor(booksAxios);
+
+const addAxiosInterceptors = ({ onSignOut }) => {
+    addResponseInterceptor(axios, onSignOut);
+    addResponseInterceptor(booksAxios, onSignOut);
+};
+
 
 export {
   addAxiosInterceptors,

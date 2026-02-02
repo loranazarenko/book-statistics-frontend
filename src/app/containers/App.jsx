@@ -29,6 +29,8 @@ import SearchParamsConfigurator from '../components/SearchParamsConfigurator';
 import BooksList from '../../pageProviders/BooksList';
 import BookDetail from '../../pageProviders/BookDetail'
 
+import ProfileFetcher from '../../components/ProfileFetcher';
+
 function App() {
     const dispatch = useDispatch();
     const [state, setState] = useState({
@@ -56,92 +58,78 @@ function App() {
     }, []);
 
     return (
-        <UserProvider>
-            <AuthoritiesProvider>
-                <ThemeProvider>
-                    <BrowserRouter>
-                        <SearchParamsConfigurator/>
-                        {/* This is needed to let first render passed for App's
-              * configuration process will be finished (e.g. locationQuery
-              * initializing) */}
-                        {state.componentDidMount && (
-                            <IntlProvider>
-                                <Header onLogout={() => dispatch(actionsUser.fetchSignOut())}/>
-                                {isFetchingUser && (
-                                    <PageContainer>
-                                        <Loading/>
-                                    </PageContainer>
-                                )}
-                                {!isFetchingUser && (
-                                    <Routes>
-                                        <Route
-                                            element={<DefaultPage/>}
-                                            path={`${pageURLs[pages.defaultPage]}`}
-                                        />
-                                        <Route
-                                            element={<SecretPage/>}
-                                            path={`${pageURLs[pages.secretPage]}`}
-                                        />
-                                        <Route
-                                            element={(
-                                                <LoginPage
-                                                    errors={errors}
-                                                    isFailedSignIn={isFailedSignIn}
-                                                    isFailedSignUp={isFailedSignUp}
-                                                    isFetchingSignIn={isFetchingSignIn}
-                                                    isFetchingSignUp={isFetchingSignUp}
-                                                    onSignIn={({
-                                                                   email,
-                                                                   login,
-                                                                   password,
-                                                               }) => dispatch(actionsUser.fetchSignIn({
-                                                        email,
-                                                        login,
-                                                        password,
-                                                    }))}
-                                                    onSignUp={({
-                                                                   email,
-                                                                   firstName,
-                                                                   lastName,
-                                                                   login,
-                                                                   password,
-                                                               }) => dispatch(actionsUser.fetchSignUp({
-                                                        email,
-                                                        firstName,
-                                                        lastName,
-                                                        login,
-                                                        password,
-                                                    }))}
+        <ProfileFetcher>
+            <ThemeProvider>
+                <IntlProvider>
+                    <UserProvider>
+                        <BrowserRouter>
+                            <SearchParamsConfigurator/>
+                            {state.componentDidMount && (
+                                <AuthoritiesProvider>
+                                    {isFetchingUser && <Loading/>}
+                                    {!isFetchingUser && (
+                                        <PageContainer>
+                                            <Header/>
+                                            <Routes>
+                                                <Route
+                                                    element={<DefaultPage/>}
+                                                    path={`${pageURLs[pages.defaultPage]}`}
                                                 />
-                                            )}
-                                            path={`${pageURLs[pages.login]}`}
-                                        />
-
-                                        <Route
-                                            element={<BooksList/>}
-                                            path="/books"
-                                        />
-                                        <Route
-                                            element={<BookDetail/>}
-                                            path="/books/:id"
-                                        />
-
-                                        <Route
-                                            element={(
-                                                <MissedPage
-                                                    redirectPage={`${pageURLs[pages.defaultPage]}`}
+                                                <Route
+                                                    element={<SecretPage/>}
+                                                    path={`${pageURLs[pages.secretPage]}`}
                                                 />
-                                            )}
-                                            path="*"
-                                        />
-                                    </Routes>
-                                )}
-                            </IntlProvider>
-                        )}
-                    </BrowserRouter>
-                </ThemeProvider>
-            </AuthoritiesProvider>
-        </UserProvider>
+                                                <Route
+                                                    element={
+                                                        <LoginPage
+                                                            errors={errors}
+                                                            isFailedSignIn={isFailedSignIn}
+                                                            isFailedSignUp={isFailedSignUp}
+                                                            isFetchingSignIn={isFetchingSignIn}
+                                                            isFetchingSignUp={isFetchingSignUp}
+                                                            onSignIn={({email, login, password}) =>
+                                                                dispatch(
+                                                                    actionsUser.fetchSignIn({
+                                                                        email,
+                                                                        login,
+                                                                        password,
+                                                                    })
+                                                                )
+                                                            }
+                                                            onSignUp={({
+                                                                           email,
+                                                                           firstName,
+                                                                           lastName,
+                                                                           login,
+                                                                           password,
+                                                                       }) =>
+                                                                dispatch(
+                                                                    actionsUser.fetchSignUp({
+                                                                        email,
+                                                                        firstName,
+                                                                        lastName,
+                                                                        login,
+                                                                        password,
+                                                                    })
+                                                                )
+                                                            }
+                                                        />
+                                                    }
+                                                    path={`${pageURLs[pages.login]}`}
+                                                />
+                                                <Route element={<BooksList/>} path="/books"/>
+                                                <Route element={<BookDetail/>} path="/books/:id"/>
+                                                <Route element={<MissedPage/>} path="*"/>
+                                            </Routes>
+                                        </PageContainer>
+                                    )}
+                                </AuthoritiesProvider>
+                            )}
+                        </BrowserRouter>
+                    </UserProvider>
+                </IntlProvider>
+            </ThemeProvider>
+        </ProfileFetcher>
     );
 }
 
